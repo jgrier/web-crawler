@@ -102,7 +102,81 @@ restate deployments register http://localhost:9080
 
 ### 1. Start a Crawl
 
-Fire off a crawl with error simulation enabled — after 15 pages, the crawler will start hitting simulated 403 firewall errors:
+```bash
+curl -X POST localhost:8080/CrawlManager/restate.dev/start/send \
+  -H 'content-type: application/json' \
+  -d '{
+    "seed_url": "https://restate.dev",
+    "max_pages": 50,
+    "batch_size": 5
+  }'
+```
+
+The `/send` suffix makes it fire-and-forget — the call returns immediately while the crawl runs in the background. Watch Terminal 2 for log output as pages are fetched.
+
+### 2. Monitor Progress
+
+Run this a few times to watch the crawl in real time:
+
+```bash
+curl -s localhost:8080/CrawlManager/restate.dev/status \
+  -H 'content-type: application/json' -d 'null' | python3 -m json.tool
+```
+
+You'll see `pages_crawled` increasing and `queue_size` growing as new links are discovered.
+
+### 3. View Results (while crawling)
+
+You can query results at any time — even while the crawl is running. The `results` handler is a shared handler that reads state concurrently:
+
+```bash
+curl -s localhost:8080/CrawlManager/restate.dev/results \
+  -H 'content-type: application/json' -d 'null' | python3 -m json.tool
+```
+
+Returns per-page data (title, headings, word count, top keywords) and aggregated site-wide keyword analysis. Run it multiple times to see keywords accumulating live.
+
+### 4. Pause
+
+Pause the crawl while it's running:
+
+```bash
+curl -s -X POST localhost:8080/CrawlManager/restate.dev/pause \
+  -H 'content-type: application/json' -d 'null' | python3 -m json.tool
+```
+
+Check status to confirm `"status": "paused"`. The crawl is suspended on an awakeable, consuming no resources.
+
+### 5. Resume
+
+```bash
+curl -s -X POST localhost:8080/CrawlManager/restate.dev/resume \
+  -H 'content-type: application/json' -d 'null' | python3 -m json.tool
+```
+
+The crawl continues exactly where it left off — even if the service was restarted while paused.
+
+### 6. View Final Results
+
+Once status shows `"completed"`, pull the full report:
+
+```bash
+curl -s localhost:8080/CrawlManager/restate.dev/results \
+  -H 'content-type: application/json' -d 'null' | python3 -m json.tool
+```
+
+### 7. Cancel
+
+Cancel a crawl from the Restate UI at http://localhost:9070 — find the `CrawlManager/start` invocation and cancel it. Or via CLI:
+
+```bash
+restate invocations list
+restate invocations cancel <invocation_id>
+```
+
+## Human-in-the-Loop (Simulated Errors)
+
+To demo the automatic error-pause flow, use `simulate_errors_after`. This makes the crawler return simulated 403 firewall errors after N successful pages:
 
 ```bash
 curl -X POST localhost:8080/CrawlManager/restate.dev/start/send \
@@ -115,67 +189,17 @@ curl -X POST localhost:8080/CrawlManager/restate.dev/start/send \
   }'
 ```
 
-The `/send` suffix makes it fire-and-forget — the call returns immediately while the crawl runs in the background.
-
-### 2. Monitor Progress
-
-Run this a few times to watch pages being crawled:
-
-```bash
-curl -s localhost:8080/CrawlManager/restate.dev/status \
-  -H 'content-type: application/json' -d 'null' | python3 -m json.tool
-```
-
-You'll see `pages_crawled` increasing and `queue_size` growing as new links are discovered.
-
-### 3. Human-in-the-Loop (automatic)
-
-After ~15 pages, the simulated 403 errors kick in. After 5 consecutive errors, the crawler **auto-pauses** and logs to Terminal 2:
+After 15 pages, the simulated errors begin. After 5 consecutive errors, the crawler **auto-pauses** and logs to Terminal 2:
 
 ```
 [CrawlManager] HUMAN INTERVENTION NEEDED — call POST /CrawlManager/restate.dev/resume to continue
 ```
 
-Check status — it will show `"status": "error_paused"`. The crawl is suspended on an awakeable, consuming no resources.
-
-### 4. Resume
-
-The human investigates the firewall issue, resolves it, and resumes:
+Status will show `"status": "error_paused"`. The crawl is suspended on an awakeable — no resources consumed, survives restarts. Resume with:
 
 ```bash
 curl -s -X POST localhost:8080/CrawlManager/restate.dev/resume \
-  -H 'content-type: application/json' -d 'null' | python3 -m json.tool
-```
-
-The crawl continues exactly where it left off.
-
-### 5. Manual Pause
-
-You can also pause a running crawl at any time:
-
-```bash
-curl -s -X POST localhost:8080/CrawlManager/restate.dev/pause \
-  -H 'content-type: application/json' -d 'null' | python3 -m json.tool
-```
-
-Check status to confirm it shows `"status": "paused"`, then resume when ready.
-
-### 6. View Results
-
-```bash
-curl -s localhost:8080/CrawlManager/restate.dev/results \
-  -H 'content-type: application/json' -d 'null' | python3 -m json.tool
-```
-
-Returns per-page data (title, headings, word count, top keywords) and aggregated site-wide keyword analysis.
-
-### 7. Cancel
-
-Cancel a crawl from the Restate UI at http://localhost:9070 — find the `CrawlManager/start` invocation and cancel it. Or via CLI:
-
-```bash
-restate invocations list
-restate invocations cancel <invocation_id>
+  -H 'content-type: application/json' -d 'null'
 ```
 
 ## Configuration
