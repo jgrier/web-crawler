@@ -1,0 +1,191 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 680" font-family="'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif">
+  <defs>
+    <filter id="shadow" x="-4%" y="-4%" width="108%" height="112%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000" flood-opacity="0.08"/>
+    </filter>
+    <linearGradient id="headerGrad" x1="0" y1="0" x2="900" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#6366f1"/>
+      <stop offset="100%" stop-color="#8b5cf6"/>
+    </linearGradient>
+    <linearGradient id="managerGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f0f0ff"/>
+      <stop offset="100%" stop-color="#e8e8ff"/>
+    </linearGradient>
+    <linearGradient id="fetcherGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f0fdf4"/>
+      <stop offset="100%" stop-color="#dcfce7"/>
+    </linearGradient>
+    <linearGradient id="rateGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fefce8"/>
+      <stop offset="100%" stop-color="#fef9c3"/>
+    </linearGradient>
+    <linearGradient id="stateGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fdf2f8"/>
+      <stop offset="100%" stop-color="#fce7f3"/>
+    </linearGradient>
+    <linearGradient id="analyzerGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f0f9ff"/>
+      <stop offset="100%" stop-color="#e0f2fe"/>
+    </linearGradient>
+    <marker id="arrow" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="10" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 3.5 L 0 7 z" fill="#94a3b8"/>
+    </marker>
+    <marker id="arrowPurple" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="10" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 3.5 L 0 7 z" fill="#8b5cf6"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="900" height="680" rx="12" fill="#fafafa"/>
+
+  <!-- Header -->
+  <rect width="900" height="56" rx="12" fill="url(#headerGrad)"/>
+  <rect y="44" width="900" height="12" fill="url(#headerGrad)"/>
+  <text x="450" y="35" text-anchor="middle" fill="white" font-size="18" font-weight="700" letter-spacing="0.5">Restate Web Crawler — Architecture</text>
+
+  <!-- User / API -->
+  <rect x="40" y="90" width="120" height="50" rx="25" fill="#fff" stroke="#6366f1" stroke-width="2" filter="url(#shadow)"/>
+  <text x="100" y="120" text-anchor="middle" fill="#6366f1" font-size="14" font-weight="600">User / API</text>
+
+  <!-- Arrow: User → CrawlManager -->
+  <line x1="160" y1="115" x2="235" y2="115" stroke="#8b5cf6" stroke-width="2" marker-end="url(#arrowPurple)"/>
+
+  <!-- API labels -->
+  <text x="198" y="105" text-anchor="middle" fill="#6366f1" font-size="9" font-weight="500">crawl</text>
+  <text x="198" y="130" text-anchor="middle" fill="#6366f1" font-size="9" font-weight="500">pause / resume</text>
+  <text x="198" y="142" text-anchor="middle" fill="#6366f1" font-size="9" font-weight="500">status / results</text>
+
+  <!-- CrawlManager -->
+  <rect x="240" y="78" width="400" height="200" rx="10" fill="url(#managerGrad)" stroke="#6366f1" stroke-width="2" filter="url(#shadow)"/>
+  <rect x="240" y="78" width="400" height="32" rx="10" fill="#6366f1"/>
+  <rect x="240" y="98" width="400" height="12" fill="#6366f1"/>
+  <text x="440" y="98" text-anchor="middle" fill="white" font-size="13" font-weight="700">CrawlManager</text>
+
+  <!-- VO badge -->
+  <rect x="560" y="84" width="70" height="18" rx="9" fill="rgba(255,255,255,0.25)"/>
+  <text x="595" y="96" text-anchor="middle" fill="white" font-size="9" font-weight="600">Virtual Object</text>
+
+  <!-- Key badge -->
+  <rect x="260" y="84" width="90" height="18" rx="9" fill="rgba(255,255,255,0.25)"/>
+  <text x="305" y="96" text-anchor="middle" fill="white" font-size="9" font-weight="500">keyed by domain</text>
+
+  <!-- CrawlManager details -->
+  <text x="260" y="132" fill="#4338ca" font-size="11" font-weight="600">Exclusive:</text>
+  <text x="330" y="132" fill="#374151" font-size="11">crawl — fan-out/fan-in loop</text>
+
+  <text x="260" y="152" fill="#4338ca" font-size="11" font-weight="600">Shared:</text>
+  <text x="310" y="152" fill="#374151" font-size="11">pause, resume, status, results</text>
+
+  <text x="260" y="178" fill="#6b7280" font-size="10">State: queue, pages_crawled, results, site_keywords,</text>
+  <text x="260" y="192" fill="#6b7280" font-size="10">errors, consecutive_errors, config</text>
+
+  <!-- Patterns badges -->
+  <rect x="260" y="210" width="78" height="20" rx="10" fill="#ede9fe" stroke="#c4b5fd" stroke-width="1"/>
+  <text x="299" y="224" text-anchor="middle" fill="#6d28d9" font-size="8" font-weight="600">FAN-OUT/IN</text>
+
+  <rect x="345" y="210" width="95" height="20" rx="10" fill="#ede9fe" stroke="#c4b5fd" stroke-width="1"/>
+  <text x="392" y="224" text-anchor="middle" fill="#6d28d9" font-size="8" font-weight="600">PAUSE / RESUME</text>
+
+  <rect x="447" y="210" width="60" height="20" rx="10" fill="#ede9fe" stroke="#c4b5fd" stroke-width="1"/>
+  <text x="477" y="224" text-anchor="middle" fill="#6d28d9" font-size="8" font-weight="600">DURABLE</text>
+
+  <rect x="514" y="210" width="110" height="20" rx="10" fill="#ede9fe" stroke="#c4b5fd" stroke-width="1"/>
+  <text x="569" y="224" text-anchor="middle" fill="#6d28d9" font-size="8" font-weight="600">HUMAN-IN-THE-LOOP</text>
+
+  <!-- Restate badge top right -->
+  <rect x="720" y="90" width="140" height="44" rx="8" fill="#fff" stroke="#e2e8f0" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="790" y="110" text-anchor="middle" fill="#6366f1" font-size="11" font-weight="700">Powered by Restate</text>
+  <text x="790" y="125" text-anchor="middle" fill="#94a3b8" font-size="9">Ruby SDK v0.9.0</text>
+
+  <!-- Arrows from CrawlManager down -->
+  <!-- → CrawlState -->
+  <line x1="330" y1="278" x2="170" y2="360" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="6,3" marker-end="url(#arrow)"/>
+  <text x="230" y="312" text-anchor="middle" fill="#94a3b8" font-size="9" transform="rotate(-25, 230, 312)">pause/resume signals</text>
+
+  <!-- → PageFetcher -->
+  <line x1="440" y1="278" x2="440" y2="355" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="470" y="320" fill="#94a3b8" font-size="9">fan-out batch</text>
+
+  <!-- → ContentAnalyzer -->
+  <line x1="540" y1="278" x2="720" y2="355" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="6,3" marker-end="url(#arrow)"/>
+  <text x="660" y="312" text-anchor="middle" fill="#94a3b8" font-size="9" transform="rotate(25, 660, 312)">called inside run_sync</text>
+
+  <!-- CrawlState -->
+  <rect x="40" y="360" width="230" height="160" rx="10" fill="url(#stateGrad)" stroke="#ec4899" stroke-width="1.5" filter="url(#shadow)"/>
+  <rect x="40" y="360" width="230" height="30" rx="10" fill="#ec4899"/>
+  <rect x="40" y="378" width="230" height="12" fill="#ec4899"/>
+  <text x="155" y="380" text-anchor="middle" fill="white" font-size="12" font-weight="700">CrawlState</text>
+
+  <rect x="195" y="365" width="65" height="16" rx="8" fill="rgba(255,255,255,0.3)"/>
+  <text x="228" y="376" text-anchor="middle" fill="white" font-size="8" font-weight="500">ingress_private</text>
+
+  <text x="60" y="410" fill="#9d174d" font-size="10" font-weight="600">keyed by domain</text>
+  <text x="60" y="430" fill="#374151" font-size="10">State: status, pause_requested,</text>
+  <text x="60" y="444" fill="#374151" font-size="10">awakeable_id</text>
+
+  <rect x="60" y="465" width="70" height="18" rx="9" fill="#fce7f3" stroke="#f9a8d4" stroke-width="1"/>
+  <text x="95" y="478" text-anchor="middle" fill="#9d174d" font-size="8" font-weight="600">AWAKEABLE</text>
+
+  <rect x="138" y="465" width="55" height="18" rx="9" fill="#fce7f3" stroke="#f9a8d4" stroke-width="1"/>
+  <text x="165" y="478" text-anchor="middle" fill="#9d174d" font-size="8" font-weight="600">SIGNAL</text>
+
+  <text x="60" y="508" fill="#6b7280" font-size="9" font-style="italic">Minimal control plane only</text>
+
+  <!-- PageFetcher -->
+  <rect x="310" y="360" width="260" height="175" rx="10" fill="url(#fetcherGrad)" stroke="#16a34a" stroke-width="1.5" filter="url(#shadow)"/>
+  <rect x="310" y="360" width="260" height="30" rx="10" fill="#16a34a"/>
+  <rect x="310" y="378" width="260" height="12" fill="#16a34a"/>
+  <text x="440" y="380" text-anchor="middle" fill="white" font-size="12" font-weight="700">PageFetcher</text>
+
+  <rect x="490" y="365" width="70" height="16" rx="8" fill="rgba(255,255,255,0.3)"/>
+  <text x="525" y="376" text-anchor="middle" fill="white" font-size="8" font-weight="500">Virtual Object</text>
+
+  <text x="330" y="410" fill="#166534" font-size="10" font-weight="600">keyed by URL</text>
+  <text x="330" y="430" fill="#374151" font-size="10">HTTP fetch inside run_sync</text>
+  <text x="330" y="446" fill="#374151" font-size="10">Cache result + TTL expiry</text>
+  <text x="330" y="462" fill="#374151" font-size="10">Never raises — errors as results</text>
+
+  <rect x="330" y="478" width="55" height="18" rx="9" fill="#dcfce7" stroke="#86efac" stroke-width="1"/>
+  <text x="358" y="491" text-anchor="middle" fill="#166534" font-size="8" font-weight="600">DEDUP</text>
+
+  <rect x="392" y="478" width="55" height="18" rx="9" fill="#dcfce7" stroke="#86efac" stroke-width="1"/>
+  <text x="420" y="491" text-anchor="middle" fill="#166534" font-size="8" font-weight="600">CACHE</text>
+
+  <rect x="454" y="478" width="80" height="18" rx="9" fill="#dcfce7" stroke="#86efac" stroke-width="1"/>
+  <text x="494" y="491" text-anchor="middle" fill="#166534" font-size="8" font-weight="600">RATE LIMITED</text>
+
+  <text x="330" y="522" fill="#6b7280" font-size="9" font-style="italic">State: result, fetched_at</text>
+
+  <!-- ContentAnalyzer -->
+  <rect x="620" y="360" width="240" height="140" rx="10" fill="url(#analyzerGrad)" stroke="#0284c7" stroke-width="1.5" filter="url(#shadow)"/>
+  <rect x="620" y="360" width="240" height="30" rx="10" fill="#0284c7"/>
+  <rect x="620" y="378" width="240" height="12" fill="#0284c7"/>
+  <text x="740" y="380" text-anchor="middle" fill="white" font-size="12" font-weight="700">ContentAnalyzer</text>
+
+  <rect x="783" y="365" width="65" height="16" rx="8" fill="rgba(255,255,255,0.3)"/>
+  <text x="816" y="376" text-anchor="middle" fill="white" font-size="8" font-weight="500">Ruby Module</text>
+
+  <text x="640" y="410" fill="#0c4a6e" font-size="10" font-weight="600">Pure Ruby — no Restate</text>
+  <text x="640" y="430" fill="#374151" font-size="10">Nokogiri HTML parsing</text>
+  <text x="640" y="446" fill="#374151" font-size="10">Keyword extraction (TF)</text>
+  <text x="640" y="462" fill="#374151" font-size="10">Same-domain link extraction</text>
+  <text x="640" y="478" fill="#374151" font-size="10">Stop word filtering</text>
+
+  <!-- RateLimiter -->
+  <rect x="310" y="570" width="260" height="95" rx="10" fill="url(#rateGrad)" stroke="#ca8a04" stroke-width="1.5" filter="url(#shadow)"/>
+  <rect x="310" y="570" width="260" height="30" rx="10" fill="#ca8a04"/>
+  <rect x="310" y="588" width="260" height="12" fill="#ca8a04"/>
+  <text x="440" y="590" text-anchor="middle" fill="white" font-size="12" font-weight="700">RateLimiter</text>
+
+  <rect x="490" y="575" width="70" height="16" rx="8" fill="rgba(255,255,255,0.3)"/>
+  <text x="525" y="586" text-anchor="middle" fill="white" font-size="8" font-weight="500">Virtual Object</text>
+
+  <text x="330" y="618" fill="#854d0e" font-size="10" font-weight="600">keyed by domain</text>
+  <text x="330" y="636" fill="#374151" font-size="10">Token bucket + durable sleep</text>
+  <text x="330" y="652" fill="#6b7280" font-size="9" font-style="italic">State: tokens, last_refill, max_tokens, refill_rate</text>
+
+  <!-- Arrow: PageFetcher → RateLimiter -->
+  <line x1="440" y1="535" x2="440" y2="565" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="470" y="553" fill="#94a3b8" font-size="9">acquire token</text>
+
+</svg>

@@ -4,37 +4,7 @@ A web crawler built on [Restate](https://restate.dev) using the [Ruby SDK](https
 
 ## Architecture
 
-```
-                        ┌─────────────────────────────────────────┐
-                        │         CrawlManager (VO)               │
-  User ─────────────────│  keyed by domain                        │
-  POST /CrawlManager/   │                                         │
-    {domain}/crawl       │  Exclusive: crawl (crawl loop)         │
-    {domain}/pause       │  Shared:    pause, resume, status,     │
-    {domain}/resume      │            results                     │
-    {domain}/status      │                                         │
-    {domain}/results     └────┬──────────────┬───────────────┬────┘
-                              │              │               │
-                   ┌──────────▼──┐  ┌────────▼────────┐  ┌──▼──────────┐
-                   │ CrawlState  │  │  PageFetcher    │  │ ContentAna- │
-                   │ (VO)        │  │  (VO)           │  │ lyzer       │
-                   │ keyed by    │  │  keyed by URL   │  │ (module)    │
-                   │ domain      │  │                 │  │             │
-                   │             │  │  Dedup via key  │  │ Nokogiri    │
-                   │ Pause/resume│  │  TTL cache      │  │ parsing +   │
-                   │ signaling   │  │                 │  │ keyword     │
-                   │ only        │  │       │         │  │ extraction  │
-                   └─────────────┘  └───────┼─────────┘  └─────────────┘
-                                            │
-                                   ┌────────▼─────────┐
-                                   │  RateLimiter     │
-                                   │  (VO)            │
-                                   │  keyed by domain │
-                                   │                  │
-                                   │  Token bucket +  │
-                                   │  durable sleep   │
-                                   └──────────────────┘
-```
+![Architecture](architecture.svg)
 
 ### Components
 
