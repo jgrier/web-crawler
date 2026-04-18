@@ -77,8 +77,10 @@ module ContentAnalyzer
 
       begin
         resolved = URI.join(base_uri, href)
+        # Skip URLs with missing or empty host
+        next if resolved.host.nil? || resolved.host.strip.empty?
         # Same domain only
-        next unless resolved.host&.downcase&.end_with?(domain.downcase)
+        next unless resolved.host.downcase.end_with?(domain.downcase)
         # HTTP(S) only
         next unless %w[http https].include?(resolved.scheme)
 

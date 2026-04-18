@@ -19,7 +19,7 @@ class CrawlManager < Restate::VirtualObject
   DEFAULT_BATCH_SIZE = 5
   ERROR_THRESHOLD = 5
 
-  handler def start(config)
+  handler def crawl(config)
     domain = Restate.key
     seed_url = config['seed_url']
     max_pages = config['max_pages'] || DEFAULT_MAX_PAGES
@@ -83,15 +83,21 @@ class CrawlManager < Restate::VirtualObject
         result = future.await
 
         if result['success']
-          # Store processed result (without links — those go into the queue)
-          page_result = result.except('links', 'success')
-          results_list << page_result
+          # Store minimal per-page summary (keywords already aggregated into site_keywords)
+          results_list << {
+            'url' => result['url'],
+            'title' => result['title'],
+            'word_count' => result['word_count']
+          }
           pages_crawled += 1
           consecutive_errors = 0
 
-          # Merge keywords into site-wide aggregation
+          # Merge keywords into site-wide aggregation, cap at 200 terms
           (result['keywords'] || {}).each do |term, count|
             site_keywords[term] = (site_keywords[term] || 0) + count
+          end
+          if site_keywords.size > 200
+            site_keywords = site_keywords.sort_by { |_, c| -c }.first(200).to_h
           end
 
           # Enqueue newly discovered same-domain links

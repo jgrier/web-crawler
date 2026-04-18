@@ -60,6 +60,17 @@ class PageFetcher < Restate::VirtualObject
 
   def fetch_and_parse(url, domain)
     uri = URI.parse(url)
+
+    # Reject URLs with missing or empty host — non-retriable
+    if uri.host.nil? || uri.host.strip.empty?
+      return {
+        'success' => false,
+        'url' => url,
+        'error' => 'Invalid URL: no hostname',
+        'fetched_at' => Time.now.to_f
+      }
+    end
+
     response = Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == 'https',
                                                      open_timeout: FETCH_TIMEOUT,
                                                      read_timeout: FETCH_TIMEOUT) do |http|
@@ -75,8 +86,17 @@ class PageFetcher < Restate::VirtualObject
       result['fetched_at'] = Time.now.to_f
       result
     when 301, 302, 303, 307, 308
-      # Follow redirects — return as success with the redirect target as a link
+      # Follow redirects — resolve relative Location to absolute URL
       location = response['location']
+      resolved_links = []
+      if location
+        begin
+          resolved = URI.join(uri, location)
+          resolved_links = [resolved.to_s] if resolved.host && !resolved.host.empty?
+        rescue URI::InvalidURIError
+          # Skip malformed redirect targets
+        end
+      end
       {
         'success' => true,
         'url' => url,
@@ -85,7 +105,7 @@ class PageFetcher < Restate::VirtualObject
         'headings' => [],
         'word_count' => 0,
         'keywords' => {},
-        'links' => location ? [location] : [],
+        'links' => resolved_links,
         'fetched_at' => Time.now.to_f
       }
     when 404
@@ -103,11 +123,13 @@ class PageFetcher < Restate::VirtualObject
         'fetched_at' => Time.now.to_f
       }
     when 429
-      raise "Rate limited by server (HTTP 429) — will retry"
+      {
+        'success' => false,
+        'url' => url,
+        'error' => 'HTTP 429 Too Many Requests',
+        'fetched_at' => Time.now.to_f
+      }
     else
-      if response.code.to_i >= 500
-        raise "Server error (HTTP #{response.code}) — will retry"
-      end
       {
         'success' => false,
         'url' => url,
@@ -115,7 +137,12 @@ class PageFetcher < Restate::VirtualObject
         'fetched_at' => Time.now.to_f
       }
     end
-  rescue Net::OpenTimeout, Net::ReadTimeout, Errno::ECONNREFUSED, Errno::ECONNRESET => e
-    raise "Network error: #{e.message} — will retry"
+  rescue StandardError => e
+    {
+      'success' => false,
+      'url' => url,
+      'error' => "#{e.class}: #{e.message}",
+      'fetched_at' => Time.now.to_f
+    }
   end
 end

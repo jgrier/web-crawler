@@ -9,7 +9,7 @@ A web crawler built on [Restate](https://restate.dev) using the [Ruby SDK](https
                         │         CrawlManager (VO)               │
   User ─────────────────│  keyed by domain                        │
   POST /CrawlManager/   │                                         │
-    {domain}/start       │  Exclusive: start (crawl loop)         │
+    {domain}/crawl       │  Exclusive: crawl (crawl loop)         │
     {domain}/pause       │  Shared:    pause, resume, status,     │
     {domain}/resume      │            results                     │
     {domain}/status      │                                         │
@@ -103,7 +103,7 @@ restate deployments register http://localhost:9080
 ### 1. Start a Crawl
 
 ```bash
-curl -X POST localhost:8080/CrawlManager/restate.dev/start/send \
+curl -X POST localhost:8080/CrawlManager/restate.dev/crawl/send \
   -H 'content-type: application/json' \
   -d '{
     "seed_url": "https://restate.dev",
@@ -130,11 +130,10 @@ You'll see `pages_crawled` increasing and `queue_size` growing as new links are 
 You can query results at any time — even while the crawl is running. The `results` handler is a shared handler that reads state concurrently:
 
 ```bash
-curl -s localhost:8080/CrawlManager/restate.dev/results \
-  -H 'content-type: application/json' -d 'null' | python3 -m json.tool
+./results.sh restate.dev
 ```
 
-Returns per-page data (title, headings, word count, top keywords) and aggregated site-wide keyword analysis. Run it multiple times to see keywords accumulating live.
+Run it multiple times to see keywords accumulating live.
 
 ### 4. Pause
 
@@ -156,18 +155,19 @@ curl -s -X POST localhost:8080/CrawlManager/restate.dev/resume \
 
 The crawl continues exactly where it left off — even if the service was restarted while paused.
 
-### 6. View Final Results
+### 6. View Results
 
-Once status shows `"completed"`, pull the full report:
+You can view results at any time — even while the crawl is running. Use the included script:
 
 ```bash
-curl -s localhost:8080/CrawlManager/restate.dev/results \
-  -H 'content-type: application/json' -d 'null' | python3 -m json.tool
+./results.sh restate.dev
 ```
+
+This shows a formatted report with crawl status, top keywords with frequency bars, page titles with word counts, and any errors.
 
 ### 7. Cancel
 
-Cancel a crawl from the Restate UI at http://localhost:9070 — find the `CrawlManager/start` invocation and cancel it. Or via CLI:
+Cancel a crawl from the Restate UI at http://localhost:9070 — find the `CrawlManager/crawl` invocation and cancel it. Or via CLI:
 
 ```bash
 restate invocations list
@@ -179,7 +179,7 @@ restate invocations cancel <invocation_id>
 To demo the automatic error-pause flow, use `simulate_errors_after`. This makes the crawler return simulated 403 firewall errors after N successful pages:
 
 ```bash
-curl -X POST localhost:8080/CrawlManager/restate.dev/start/send \
+curl -X POST localhost:8080/CrawlManager/restate.dev/crawl/send \
   -H 'content-type: application/json' \
   -d '{
     "seed_url": "https://restate.dev",
@@ -223,5 +223,5 @@ curl -X POST localhost:8080/RateLimiter/restate.dev/configure \
 ## Admin
 
 - **Restate UI**: http://localhost:9070 — inspect virtual object state, view invocations, cancel crawls
-- **Cancel a crawl**: Cancel the `CrawlManager/{domain}/start` invocation from the UI
+- **Cancel a crawl**: Cancel the `CrawlManager/{domain}/crawl` invocation from the UI
 - **Restate CLI**: `restate invocations list` to see active crawls
